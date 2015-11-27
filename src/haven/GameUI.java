@@ -846,7 +846,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	if(key == ':') {
 	    entercmd();
 	    return(true);
-	} else if(key == ' ') {
+	} else if(ev.getKeyCode() == 'P') {
+		// reserving space for future use, dont use space for this bullshit l2ui
 	    toggleui();
 	    return(true);
 	} else if(key == 3) {
@@ -951,6 +952,12 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             }
             tasks.add(new Forager(11 * Config.autopickRadius.get(), 1, names.toArray(new String[names.size()])));
             return true;
+        } else if (keycode == KeyEvent.VK_R && ev.getModifiers() == 0) {
+            ContextTaskFinder.findHandTask(tasks, ui);
+            return true;
+        } else if (keycode == KeyEvent.VK_F && ev.getModifiers() == 0) {
+            ContextTaskFinder.findBuilding(tasks, ui);
+            return true;
         } else if (keycode == KeyEvent.VK_W && ev.getModifiers() == 0) {
             tasks.add(new Drunkard());
             return true;
@@ -962,6 +969,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             return true;
         } else if (alt && keycode == KeyEvent.VK_P) {
             Config.showGobPaths.set(!Config.showGobPaths.get());
+            return true;
+        } else if (keycode >= KeyEvent.VK_NUMPAD1 && keycode <= KeyEvent.VK_NUMPAD4) {
+            tasks.add(new MileStoneTask(Utils.floormod(keycode - KeyEvent.VK_NUMPAD0 - 1, 10)));
             return true;
         }
     }
