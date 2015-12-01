@@ -24,7 +24,7 @@ public class MileStoneTask extends FsmTask{
     private class FindObject extends State {
         @Override
         public void tick(double dt) {
-            Gob object = context().findObjectByNames(30, MILESTONES);
+            Gob object = context().findObjectByNames(30, false, MILESTONES);
             if (object != null) {
                 context().click(object, 3, 0);
                 waitMenu(1, actionNumber, new Callback<Boolean>() {

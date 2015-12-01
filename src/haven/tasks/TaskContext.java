@@ -55,11 +55,11 @@ class TaskContext {
         return ui.sess.glob.oc.getgob(id);
     }
 
-    public Gob findObjectByName(int radius, String name) {
-        return findObjectByNames(radius, name);
+    public Gob findObjectByName(int radius, boolean exact, String name) {
+        return findObjectByNames(radius, exact, name);
     }
 
-    public Gob findObjectByNames(int radius, String... names) {
+    public Gob findObjectByNames(int radius, boolean exact, String... names) {
         Coord plc = player().rc;
         double min = radius;
         Gob nearest = null;
@@ -69,7 +69,7 @@ class TaskContext {
                 if (dist < min) {
                     boolean matches = false;
                     for (String name : names) {
-                        if (Utils.isObjectName(gob, name)) {
+                        if (Utils.isObjectName(gob, exact, name)) {
                             matches = true;
                             break;
                         }

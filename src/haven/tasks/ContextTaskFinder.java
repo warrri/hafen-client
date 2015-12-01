@@ -34,19 +34,17 @@ public class ContextTaskFinder {
     private static final String[] LIVESTOCK = {KRITTER+"cattle/cattle",KRITTER+"cattle/calf", KRITTER+"sheep/sheep",
             KRITTER+"sheep/lamb", KRITTER+"pig/piglet", KRITTER+"pig/sow", KRITTER+"pig/hog"};
 
+    private static final String TREES = "gfx/terobjs/trees/appletree";
+
     /*
-        Hotkey E priority list
+        Hotkey R priority list
      */
     public static void findHandTask(TaskManager tasks, UI ui) {
-
         if (checkQuickHandAction(tasks))
             return;
 
-
-
         if (checkRClick(tasks, 30, "Giddyup!", CLOVERABLEKRITTERS))
             return;
-
         tasks.getContext().error("Nothing to do");
     }
     /*
@@ -76,6 +74,10 @@ public class ContextTaskFinder {
         // harvest dreamcatcher
         if (checkRClick(tasks, 25, "Harvest", "gfx/terobjs/dreca"))
             return;
+
+        if (checkTreeChop(tasks))
+            return;
+
     }
 
     /*
@@ -97,18 +99,23 @@ public class ContextTaskFinder {
             }
         }
         if (names.size() > 0) {
-            Gob obj = tasks.getContext().findObjectByNames(11 * Config.autopickRadius.get(), names.toArray(new String[names.size()]));
+            Gob obj = tasks.getContext().findObjectByNames(11 * Config.autopickRadius.get(), false, names.toArray(new String[names.size()]));
             if (obj != null) {
                 tasks.add(new RClickTask(obj, "Pick"));
                 return true;
             }
-            return false;
         }
+        Gob obj = tasks.getContext().findObjectByName(70, false, KRITTER+"dragonfly/dragonfly");
+        if (obj!=null) {
+            tasks.getContext().click(obj, 3,0);
+            return true;
+        }
+
         return false;
     }
 
     private static boolean checkGate(TaskManager tasks) {
-        Gob obj = tasks.getContext().findObjectByNames(35, OPENABLEGATES);
+        Gob obj = tasks.getContext().findObjectByNames(35, false, OPENABLEGATES);
 
         if (obj!=null) {
             tasks.getContext().click(obj, 3,0);
@@ -127,7 +134,7 @@ public class ContextTaskFinder {
         // unlit torch -> light torch at campfire
         if (item.resname().equals("gfx/invobjs/torch"))
         {
-            Gob obj = tasks.getContext().findObjectByNames(50, "gfx/terobjs/pow");
+            Gob obj = tasks.getContext().findObjectByNames(50, false, "gfx/terobjs/pow");
             if (obj!=null)
                 tasks.getContext().itemact(obj, 0);
             return true;
@@ -136,7 +143,7 @@ public class ContextTaskFinder {
         // lit torch -> light building
         if (item.resname().equals("gfx/invobjs/torch-l"))
         {
-            Gob obj = tasks.getContext().findObjectByNames(50, LIGHTABLEBUILDINGS);
+            Gob obj = tasks.getContext().findObjectByNames(50, false, LIGHTABLEBUILDINGS);
             if (obj!=null)
                 tasks.getContext().itemact(obj, 0);
             return true;
@@ -145,7 +152,7 @@ public class ContextTaskFinder {
         // waterflask or bucket -> rightclick barrel
         if (WATERCONTAINER.contains(item.resname()))
         {
-            Gob obj = tasks.getContext().findObjectByName(50, "gfx/terobjs/barrel");
+            Gob obj = tasks.getContext().findObjectByName(50, false, "gfx/terobjs/barrel");
             if (obj!=null)
                 tasks.getContext().itemact(obj, 0);
             return true;
@@ -153,14 +160,13 @@ public class ContextTaskFinder {
 
         // clover -> horse
         if (item.resname().equals("gfx/invobjs/herbs/clover")) {
-            Gob obj = tasks.getContext().findObjectByName(50, "gfx/kritter/horse/horse");
+            Gob obj = tasks.getContext().findObjectByName(50, false, "gfx/kritter/horse/horse");
             if (obj!=null)
                 tasks.getContext().itemact(obj, 0);
             return true;
         }
 
         // non interactive item gg
-        // remove error later
         tasks.getContext().error(item.resname()+" has no interaction");
         return false;
     }
@@ -179,7 +185,7 @@ public class ContextTaskFinder {
                 tasks.getContext().error("Temporary slot needs to be empty");
                 return false;
             }
-            Gob obj = tasks.getContext().findObjectByNames(50, "gfx/terobjs/ttub");
+            Gob obj = tasks.getContext().findObjectByNames(50, false, "gfx/terobjs/ttub");
             if (obj!= null) {
                 if (left != null && left.resname().contains("bucket-tanfluid"))
                     Utils.takeItem(tasks.getContext().getItemLeftHand().item);
@@ -196,7 +202,7 @@ public class ContextTaskFinder {
                 tasks.getContext().error("Temporary slot needs to be empty");
                 return false;
             }
-            Gob obj = tasks.getContext().findObjectByNames(50, "gfx/terobjs/barrel");
+            Gob obj = tasks.getContext().findObjectByNames(50, false, "gfx/terobjs/barrel");
             if (obj!= null) {
                 if (left != null && left.resname().equals("gfx/invobjs/bucket"))
                     Utils.takeItem(tasks.getContext().getItemLeftHand().item);
@@ -209,8 +215,17 @@ public class ContextTaskFinder {
         return false;
     }
 
+    private static boolean checkTreeChop(TaskManager tasks) {
+        Gob obj = tasks.getContext().findObjectByNames(20, true, TREES);
+        if (obj!=null) {
+            tasks.add(new ChopTask(obj, "Chop"));
+            return true;
+        }
+        return false;
+    }
+
     private static boolean checkMileStone(TaskManager tasks) {
-        Gob obj = tasks.getContext().findObjectByNames(30, MILESTONES);
+        Gob obj = tasks.getContext().findObjectByNames(30, false, MILESTONES);
         if (obj!=null) {
             tasks.getContext().click(obj, 3,0, obj.sc);
             return true;
@@ -219,7 +234,7 @@ public class ContextTaskFinder {
     }
 
     private static boolean checkRClick(TaskManager tasks, int radius, String action, String... objects) {
-        Gob obj = tasks.getContext().findObjectByNames(radius, objects);
+        Gob obj = tasks.getContext().findObjectByNames(radius, false, objects);
         if (obj != null) {
             tasks.add(new RClickTask(obj, action));
             return true;
