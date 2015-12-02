@@ -42,7 +42,8 @@ public class TaskManager {
 
     public void killAllTasks() {
         for (Task t: tasks) {
-            t.stop();
+            if (!(t instanceof AutoStudy))
+                t.stop();
         }
     }
 }
