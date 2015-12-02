@@ -1,0 +1,1 @@
+Harvest a selected area automatically, while keeping track of stamina and energy. Drops everything from inventory that isn't keyring, waterflask or tsack.

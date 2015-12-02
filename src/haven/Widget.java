@@ -32,6 +32,12 @@ import java.lang.reflect.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
+
 public class Widget {
     public UI ui;
     public Coord c, sz;

@@ -34,7 +34,15 @@ public class ContextTaskFinder {
     private static final String[] LIVESTOCK = {KRITTER+"cattle/cattle",KRITTER+"cattle/calf", KRITTER+"sheep/sheep",
             KRITTER+"sheep/lamb", KRITTER+"pig/piglet", KRITTER+"pig/sow", KRITTER+"pig/hog"};
 
-    private static final String TREES = "gfx/terobjs/trees/appletree";
+    private static final String TREE = "gfx/terobjs/trees/";
+    private static final String[] TREES = {TREE+ "alder", TREE+ "appletree", TREE+ "ash", TREE+ "aspen",
+            TREE+ "baywillow", TREE+ "beech", TREE+"birch", TREE+"birdcherrytree", TREE+"buckthorn", TREE+"cedar", TREE+"cherry",
+            TREE+ "chestnuttree", TREE+ "conkertree", TREE+ "corkoak", TREE+ "crabappletree", TREE+ "cypress", TREE+ "elm",
+            TREE+ "fir", TREE+ "goldenchain", TREE+ "hazel", TREE+ "hornbeam", TREE+ "juniper", TREE+ "kingsoak", TREE+ "larch",
+            TREE+ "laurel", TREE+ "linden", TREE+ "maple", TREE+ "mulberry", TREE+ "oak", TREE+ "olivetree", TREE+ "peartree",
+            TREE+ "pine", TREE+ "planetree", TREE+ "plumtree", TREE+ "poplar", TREE+ "rowan", TREE+ "sallow", TREE+ "spruce",
+            TREE+ "sweetgum", TREE+ "walnuttree", TREE+ "whitebeam", TREE+ "willow", TREE+ "yew"};
+
 
     /*
         Hotkey R priority list

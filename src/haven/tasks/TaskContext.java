@@ -44,10 +44,10 @@ class TaskContext {
     }
 
     public void click(Gob gob, int button, int mod) {
-        ui.gui.map.wdgmsg("click", Coord.z, gob.rc, button, 0, mod, (int)gob.id, gob.rc, 0, -1);
+        ui.gui.map.wdgmsg("click", Coord.z, gob.rc, button, mod, 0, (int)gob.id, gob.rc, 0, -1);
     }
     public void click(Gob gob, int button, int mod, Coord coord) {
-        ui.gui.map.wdgmsg("click", coord, gob.rc, button, 0, mod, (int)gob.id, gob.rc, 0, -1);
+        ui.gui.map.wdgmsg("click", coord, gob.rc, button, mod, 0, (int)gob.id, gob.rc, 0, -1);
     }
 
 
@@ -84,6 +84,30 @@ class TaskContext {
         return nearest;
     }
 
+    public Gob findObjectInBoundingBox(Coord one, Coord two, String... names) {
+        int xlow = one.x<two.x?one.x:two.x;
+        int xhigh = one.x>=two.x?one.x:two.x;
+        int ylow = one.y<two.y?one.y:two.y;
+        int yhigh = one.y>=two.y?one.y:two.y;
+
+        Gob obj = null;
+        synchronized (ui.sess.glob.oc) {
+            for (Gob gob : ui.sess.glob.oc) {
+                for (String name : names) {
+                    if (Utils.isObjectName(gob, false, name)) {
+                        if (gob.rc.x/11>=xlow && gob.rc.x/11 <=xhigh && gob.rc.y/11 >=ylow && gob.rc.y/11 <= yhigh){
+                            //info("Gob name: "+gob.getres().name+" Gob.rc.x: "+gob.rc.x/11+ " Gob.rc.y: "+gob.rc.y/11+"Gob.sc.x: "
+                            //        +gob.sc.x/11+ " Gob.sc.y: "+gob.sc.y/11+" xlow: " + xlow+ " xhigh: "+xhigh+" ylow: "+ylow+" yhigh: "+yhigh);
+                            if (GobInfo.isMaxStage(gob)) {
+                                 return gob;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return obj;
+    }
     public List<Window> findWindows(String name) {
         List<Window> result = new ArrayList<Window>();
         for (Widget w = ui.gui.child; w != null; w = w.next) {

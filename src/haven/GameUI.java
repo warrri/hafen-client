@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import haven.minimap.CustomIconGroup;
 import haven.minimap.CustomIconMatch;
 import haven.minimap.CustomIconWnd;
+import haven.stuff.HarvesterSelection;
 import haven.tasks.*;
 import haven.tasks.AutoStudy;
 import org.apache.commons.io.FileUtils;
@@ -955,6 +956,9 @@ public class GameUI extends ConsoleHost implements Console.Directory {
             return true;
         } else if (keycode == KeyEvent.VK_W && ev.getModifiers() == 0) {
             tasks.add(new Drunkard());
+            return true;
+        } else if (keycode == KeyEvent.VK_Z && ev.getModifiers() == 0) {
+            tasks.killAllTasks();
             return true;
         } else if (ev.isShiftDown() && keycode == KeyEvent.VK_I) {
             Config.hideKinInfoForNonPlayers.set(!Config.hideKinInfoForNonPlayers.get());

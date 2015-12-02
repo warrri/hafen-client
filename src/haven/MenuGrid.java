@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
 import haven.Resource.AButton;
 import haven.Glob.Pagina;
+import haven.stuff.HarvesterSelection;
 import haven.tasks.*;
 import haven.util.ObservableCollection;
 
@@ -127,6 +128,7 @@ public class MenuGrid extends Widget {
         p.add(glob.paginafor(Resource.local().load("paginae/custom/pick-mussels")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/fill-smelter")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/arrow-autoloader")));
+        p.add(glob.paginafor(Resource.local().load("paginae/custom/harvester")));
 	}
 	
     private static Comparator<Pagina> sorter = new Comparator<Pagina>() {
@@ -352,6 +354,8 @@ public class MenuGrid extends Widget {
             ui.gui.tasks.add(new Forager(200, Integer.MAX_VALUE, "mussels"));
         } else if (ad[1].equals("fill-smelter")) {
             ui.gui.tasks.add(new FeedCoalTask("smelter", 11));
+        } else if (ad[1].equals("harvester")) {
+            gameui().add(new HarvesterSelection(gameui()), 300,200);
         } else if (ad[1].equals("arrow-autoloader")) {
             Config.enableAutoloader = !Config.enableAutoloader;
             ui.gui.msg(String.format("Autoloader is now turned %s", Config.enableAutoloader ? "on" : "off"));

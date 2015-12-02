@@ -39,4 +39,10 @@ public class TaskManager {
             stopped.clear();
         }
     }
+
+    public void killAllTasks() {
+        for (Task t: tasks) {
+            t.stop();
+        }
+    }
 }

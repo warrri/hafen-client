@@ -114,6 +114,24 @@ public class GobInfo extends GAttrib {
             return null;
     }
 
+    public static boolean isMaxStage(Gob gob) {
+        if (isSpriteKind("GrowingPlant", gob) || isSpriteKind("TrellisPlant", gob)) {
+            int maxStage = 0;
+            for (FastMesh.MeshRes layer : gob.getres().layers(FastMesh.MeshRes.class)) {
+                if (layer.id / 10 > maxStage)
+                    maxStage = layer.id / 10;
+            }
+            Message data = getDrawableData(gob);
+            if (data != null) {
+                int stage = data.uint8();
+                if (stage >= maxStage) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private static boolean isSpriteKind(String kind, Gob gob) {
         Resource.CodeEntry ce = gob.getres().layer(Resource.CodeEntry.class);
         if (ce != null) {
