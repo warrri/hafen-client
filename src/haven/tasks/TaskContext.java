@@ -96,9 +96,7 @@ class TaskContext {
                 for (String name : names) {
                     if (Utils.isObjectName(gob, false, name)) {
                         if (gob.rc.x/11>=xlow && gob.rc.x/11 <=xhigh && gob.rc.y/11 >=ylow && gob.rc.y/11 <= yhigh){
-                            //info("Gob name: "+gob.getres().name+" Gob.rc.x: "+gob.rc.x/11+ " Gob.rc.y: "+gob.rc.y/11+"Gob.sc.x: "
-                            //        +gob.sc.x/11+ " Gob.sc.y: "+gob.sc.y/11+" xlow: " + xlow+ " xhigh: "+xhigh+" ylow: "+ylow+" yhigh: "+yhigh);
-                            if (GobInfo.isMaxStage(gob)) {
+                            if (GobInfo.isHarvestable(gob)) {
                                  return gob;
                             }
                         }
@@ -130,5 +128,9 @@ class TaskContext {
 
     public Inventory playerInventory() {
         return ui.gui.maininv;
+    }
+
+    public void clicktile(Coord c){
+        ui.gui.map.wdgmsg("click", Coord.z, c, 1, 0);
     }
 }

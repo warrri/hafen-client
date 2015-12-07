@@ -114,8 +114,8 @@ public class GobInfo extends GAttrib {
             return null;
     }
 
-    public static boolean isMaxStage(Gob gob) {
-        if (isSpriteKind("GrowingPlant", gob) || isSpriteKind("TrellisPlant", gob)) {
+    public static boolean isHarvestable(Gob gob) {
+        if (isSpriteKind("GrowingPlant", gob)) {
             int maxStage = 0;
             for (FastMesh.MeshRes layer : gob.getres().layers(FastMesh.MeshRes.class)) {
                 if (layer.id / 10 > maxStage)
@@ -124,8 +124,11 @@ public class GobInfo extends GAttrib {
             Message data = getDrawableData(gob);
             if (data != null) {
                 int stage = data.uint8();
-                if (stage >= maxStage) {
+                if (stage >= maxStage)
                     return true;
+                if (gob.getres().name.contains("carrot")) {
+                    if (stage>=2)
+                        return true;
                 }
             }
         }

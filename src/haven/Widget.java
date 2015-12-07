@@ -586,7 +586,21 @@ public class Widget {
     }
 	
     public void wdgmsg(String msg, Object... args) {
-	wdgmsg(this, msg, args);
+	/*	try {
+
+			PrintStream write = new PrintStream(new FileOutputStream("wdgmsg.txt", true));
+			write.append(msg);
+			if (args != null) {
+				for (int i = 0; i < args.length; i++) {
+					write.append(", "+args[i]);
+				}
+			}
+            write.println();
+
+		}
+		catch (Exception e) {
+		} */
+		wdgmsg(this, msg, args);
     }
 	
     public void wdgmsg(Widget sender, String msg, Object... args) {

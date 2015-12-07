@@ -94,6 +94,7 @@ public class GameUI extends ConsoleHost implements Console.Directory {
     private final GameUILayout layout;
     private boolean ignoreTrackingSound;
     public boolean lowStam;
+    public boolean feedTrough;
 
     public abstract class Belt extends Widget {
 	public Belt(Coord sz) {
@@ -527,6 +528,8 @@ public class GameUI extends ConsoleHost implements Console.Directory {
 	}
     }
 
+    private Coord cBCoord = new Coord(100,100);
+
     public void addchild(Widget child, Object... args) {
 	String place = ((String)args[0]).intern();
 	if(place == "mapview") {
@@ -697,6 +700,10 @@ public class GameUI extends ConsoleHost implements Console.Directory {
         if (lowStam) {
             tasks.add(new Drunkard());
             lowStam = false;
+        }
+        if (feedTrough) {
+            tasks.add(new FeedEdiblesTask("trough"));
+            feedTrough = false;
         }
     tasks.tick(dt);
     }

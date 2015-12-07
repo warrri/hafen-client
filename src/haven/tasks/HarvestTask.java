@@ -79,23 +79,16 @@ public class HarvestTask extends FsmTask
                 }
                 failTime+=dt;
                 if (failTime>5) {
+                    dropitems();
                     failAmount++;
                     failTime=0;
                     setState(new FindObject());
                 }
             } else
                 failTime = 0;
-            // drop inventory every 30s
-            if (t%30>29) {
-                Inventory inv = context().playerInventory();
-                for (Widget w = inv.child; w != null; w = w.next) {
-                    if (w instanceof GItem ) {
-                        if (!(((GItem) w).resname().contains("keyring") || ((GItem) w).resname().contains("waterflask") || ((GItem) w).resname().contains("travel"))){
-                            GItem item = (GItem) w;
-                            item.wdgmsg("drop", Coord.z);
-                        }
-                    }
-                }
+            // drop inventory every 20s
+            if (t%20>19) {
+                dropitems();
                 // check if done
                 Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
                 if (object == null) {
@@ -105,7 +98,17 @@ public class HarvestTask extends FsmTask
             // check if done
         }
     }
-
+    private void dropitems() {
+        Inventory inv = context().playerInventory();
+        for (Widget w = inv.child; w != null; w = w.next) {
+            if (w instanceof GItem ) {
+                if (!(((GItem) w).resname().contains("keyring") || ((GItem) w).resname().contains("waterflask") || ((GItem) w).resname().contains("travel"))){
+                    GItem item = (GItem) w;
+                    item.wdgmsg("drop", Coord.z);
+                }
+            }
+        }
+    }
     // wait for drink
     private class Wait extends State {
         private final double timeout = 6;

@@ -161,7 +161,7 @@ public class UI {
 	    bind(wdg, id);
         if (Config.showAimPercentage.get() && type.startsWith("ui/aim")) {
             aim = wdg;
-            aimProgress = pwdg.add(new AimProgress(wdg));
+            aimProgress = pwdg.add(new AimProgress(wdg, gui.maininv, gui.getEquipory()));
         }
 	}
     }

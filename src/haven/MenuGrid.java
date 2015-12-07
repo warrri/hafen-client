@@ -129,6 +129,7 @@ public class MenuGrid extends Widget {
         p.add(glob.paginafor(Resource.local().load("paginae/custom/fill-smelter")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/arrow-autoloader")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/harvester")));
+        p.add(glob.paginafor(Resource.local().load("paginae/custom/digger")));
 	}
 	
     private static Comparator<Pagina> sorter = new Comparator<Pagina>() {
@@ -354,6 +355,8 @@ public class MenuGrid extends Widget {
             ui.gui.tasks.add(new Forager(200, Integer.MAX_VALUE, "mussels"));
         } else if (ad[1].equals("fill-smelter")) {
             ui.gui.tasks.add(new FeedCoalTask("smelter", 11));
+		} else if (ad[1].equals("digger")) {
+			ui.gui.tasks.add(new DigTask());
         } else if (ad[1].equals("harvester")) {
             gameui().add(new HarvesterSelection(gameui()), 300,200);
         } else if (ad[1].equals("arrow-autoloader")) {
