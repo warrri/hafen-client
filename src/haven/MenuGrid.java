@@ -129,6 +129,7 @@ public class MenuGrid extends Widget {
         p.add(glob.paginafor(Resource.local().load("paginae/custom/fill-smelter")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/arrow-autoloader")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/harvester")));
+		p.add(glob.paginafor(Resource.local().load("paginae/custom/harvesterplus")));
         p.add(glob.paginafor(Resource.local().load("paginae/custom/digger")));
 	}
 	
@@ -358,7 +359,9 @@ public class MenuGrid extends Widget {
 		} else if (ad[1].equals("digger")) {
 			ui.gui.tasks.add(new DigTask());
         } else if (ad[1].equals("harvester")) {
-            gameui().add(new HarvesterSelection(gameui()), 300,200);
+            gameui().add(new HarvesterSelection(gameui(), false), 300,200);
+        } else if (ad[1].equals("harvesterplus")) {
+            gameui().add(new HarvesterSelection(gameui(), true), 300,200);
         } else if (ad[1].equals("arrow-autoloader")) {
             Config.enableAutoloader = !Config.enableAutoloader;
             ui.gui.msg(String.format("Autoloader is now turned %s", Config.enableAutoloader ? "on" : "off"));

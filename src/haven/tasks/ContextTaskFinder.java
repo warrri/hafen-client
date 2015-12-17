@@ -149,7 +149,7 @@ public class ContextTaskFinder {
         }
 
         // lit torch -> light building
-        if (item.resname().equals("gfx/invobjs/torch-l"))
+        if (item.resname().equals("gfx/invobjs/torch-l") || item.resname().equals("gfx/invobjs/flintsteel"))
         {
             Gob obj = tasks.getContext().findObjectByNames(50, false, LIGHTABLEBUILDINGS);
             if (obj!=null)

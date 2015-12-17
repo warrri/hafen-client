@@ -81,6 +81,16 @@ public class UI {
 			sess.close();
 		    }
 		});
+        setcmd("dist", new Command() {
+            public void run(Console cons, String[] args) {
+                gui.map.camera.setDist(args[1]!=null?Float.valueOf(args[1]):0);
+            }
+        });
+		setcmd("d", new Command() {
+			public void run(Console cons, String[] args) {
+				Config.dbtext=!Config.dbtext;
+			}
+		});
 	}
 	
 	private void findcmds(Map<String, Command> map, Widget wdg) {

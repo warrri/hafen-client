@@ -107,10 +107,11 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    proj.prep(buf);
 	    view.prep(buf);
 	}
-
+    public abstract void setDist(float dist);
 	public abstract float angle();
 	public abstract void tick(double dt);
     }
+
 
     public class FollowCam extends Camera {
 	private final float fr = 0.0f, h = 10.0f;
@@ -150,7 +151,9 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    double a = elev / (Math.PI / 4);
 	    return((float)(f0 + (fa * a) + (fb * Math.sqrt(a))));
 	}
-
+    public void setDist(float dist) {
+        return;
+    }
 	private float dist(float elev) {
 	    float da = (float)Math.atan(ca * field(elev));
 	    return((float)(((cd - (h / Math.tan(elev))) * Math.sin(elev - da) / Math.sin(da)) - (h / Math.sin(elev))));
@@ -223,6 +226,10 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	private Coord dragorig = null;
 	private float elevorig, anglorig;
 
+    public void setDist(float dist) {
+        return;
+    }
+
 	public void tick(double dt) {
 	    Coord3f cc = getcc();
 	    cc.y = -cc.y;
@@ -279,7 +286,9 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    cc.y = -cc.y;
 	    this.cc = cc;
 	}
-
+    public void setDist(float dist) {
+        return;
+    }
 	public void tick(double dt) {
 	    tick2(dt);
 	    float aspect = ((float)sz.y) / ((float)sz.x);
@@ -380,7 +389,7 @@ public class MapView extends PView implements DTarget, Console.Directory {
 
 	private void chfield(float nf) {
 	    tfield = nf;
-	    tfield = Math.max(tfield, 50);
+	    tfield = Math.max(tfield, 5);
 	    release();
 	}
 
@@ -388,7 +397,10 @@ public class MapView extends PView implements DTarget, Console.Directory {
 	    chfield(tfield + amount * 10);
 	    return(true);
 	}
-
+    public void setDist(float dist) {
+        chfield(dist!=0?dist:300);
+        return;
+    }
 	public boolean keydown(KeyEvent ev) {
 	    if(ev.getKeyCode() == KeyEvent.VK_LEFT) {
 		tangl = (float)(Math.PI * 0.5 * (Math.floor((tangl / (Math.PI * 0.5)) - 0.51) + 0.5));
@@ -616,7 +628,8 @@ public class MapView extends PView implements DTarget, Console.Directory {
 				lightdif = glob.lightdif;
 				lightspc = glob.lightspc;
 			}
-		DirLight light = new DirLight(lightamb, lightdif, lightspc, Coord3f.o.sadd((float)glob.lightelev, (float)glob.lightang, 1f));
+		//DirLight light = new DirLight(lightamb, lightdif, lightspc, Coord3f.o.sadd((float)glob.lightelev, (float)glob.lightang, 1f));
+        DirLight light = new DirLight(lightamb, lightdif, lightspc, Coord3f.o.sadd(.9f, .1f, 1f));
 		rl.add(light, null);
 		updsmap(rl, light);
 		amb = light;

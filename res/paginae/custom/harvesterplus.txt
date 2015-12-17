@@ -1,0 +1,1 @@
+Harvest a selected area automatically (only carrots), while keeping track of stamina and energy. Replants the field and puts rest in trough.
