@@ -10,10 +10,11 @@ public class HarvestTaskPlus extends FsmTask {
     private static final String PLANT = "gfx/terobjs/plants/";
     private static final String[] PLANTS = {PLANT+"barley", PLANT+"beet", PLANT+"carrot", PLANT+"flax", PLANT+"hemp", PLANT+"lettuce", PLANT+"pipeweed",
             PLANT+"poppy", PLANT+"pumpkin", PLANT+"yellowonion"};
-    private static final String[] INVPLANTS = {"carrot"};
+    private static final String[] INVPLANTS = {"carrot", "beet"};
 
     private Coord startCoord;
     private final Coord start, end;
+    private Coord curPos;
     private int slots;
     Inventory inv;
     private double totalTasktime;
@@ -36,27 +37,31 @@ public class HarvestTaskPlus extends FsmTask {
     private class FindObject extends State {
         @Override
         public void tick(double dt) {
-            //dropitems();
             stam = context().gui().getmeter("stam", 0);
             inv = context().playerInventory();
+            curPos = context().gui().map.player().rc;
             boolean hasFeed = getFreeslots();
-            if (slots <= 0) {
+            if (slots < 12) {
                 if (hasFeed) {
-                    setState(new WaitWalkStart(new WaitFeed()));
-                    return;}
-                else
-                    stop("No inventory slots");
+                    setState(new WaitWalk(new WaitFeed()));
+                    return;
+                }   else
+                    stop("Not enough empty inventory slots");
             }
-            // find plant
-            Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
-            if (object != null) {
-                context().gui().map.wdgmsg("click", object.sc, object.rc, 3, 1, 0, (int)object.id, object.rc, 0, 42);
-                setState(new WaitCursor());
-            } else {
-                stop("Nothing to harvest");
-            }
+            if (!startHarvest())
+                stop("Finished harvesting in " + (int) (totalTasktime / 60) + "m " + (int) (totalTasktime % 60) + "s");
         }
     }
+    private boolean startHarvest() {
+        Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
+        if (object != null) {
+            context().gui().map.wdgmsg("click", object.sc, object.rc, 3, 1, 0, (int)object.id, object.rc, 0, 42);
+            setState(new WaitCursor());
+            return true;
+        }
+        return false;
+    }
+
     private class WaitCursor extends State {
         private final double timer = .5;
         private double t;
@@ -71,10 +76,11 @@ public class HarvestTaskPlus extends FsmTask {
         }
     }
     private class CheckStam extends State {
-        private final int threshHold = 35;
+        private final int threshHold = 40;
         private double t;
         int filledSlots;
-
+        int filledSlotsLast;
+        int slotCounter;
         @Override
         public void tick(double dt) {
             t += dt;
@@ -82,43 +88,48 @@ public class HarvestTaskPlus extends FsmTask {
             filledSlots=0;
             stam = context().gui().getmeter("stam", 0);
             if (stam != null && stam.a < threshHold) {
-                context().info("Low stamina, trying to drink");
                 context().gui().lowStam = true;
                 setState(new Wait());
                 return;
             }
-            // check items every second
-            if (t > 1) {
+            // check items
+            if (t > .2) {
                 t=0;
                 try {
                     for (Widget w = inv.child; w != null; w = w.next) {
                         if (w instanceof GItem )
-                            if (((GItem) w).resname().contains("carrot") ) {
+                            if (((GItem) w).resname().contains("carrot") || ((GItem)w).resname().contains("beet") ) {
                                 filledSlots++;
                                 lastItem = (GItem) w;
                             }
                     }
                 } catch (Exception e) {
                 }
-                context().info("Slots left: "+(slots-filledSlots));
                 if (filledSlots >= slots) {
                     setState(new Replant());
                 }
+                if (filledSlotsLast==filledSlots) {
+                    slotCounter++;
+                    if (slotCounter > 50) {
+                        setState(new Replant());
+                    }
+                } else {
+                    slotCounter = 0;
+                }
+                filledSlotsLast=filledSlots;
             }
         }
     }
     private class Replant extends State {
         @Override
         public void tick(double dt) {
-            if (context().getItemAtHand()!=null)
-                context().getItemAtHand().wdgmsg("drop", startCoord, startCoord, 0);
+            dropHand();
             if (lastItem != null) {
                 lastItem.wdgmsg("iact", lastItem.c, 1);
                 context().gui().map.wdgmsg("sel", start, end, 0);
-                lastPC = context().gui().map.player().rc;
+                lastPC = new Coord(context().gui().map.player().rc);
                 setState(new WaitReplant());
-            }
-            else {
+            } else {
                 stop("No carrot found");
             }
         }
@@ -132,50 +143,57 @@ public class HarvestTaskPlus extends FsmTask {
             totalTasktime+=dt;
             if (t>1) {
                 t=0;
-                if (lastPC == context().gui().map.player().rc) {
+                curPos=context().player().rc;
+                if (lastPC.dist(curPos)==0) {
                     doneCheck++;
-                    if (doneCheck > 3) {
+                    if (doneCheck > 2) {
+                        dropHand();
                         context().gui().map.wdgmsg("click", Coord.z, startCoord, 1, 0, 0, 0, startCoord, 0, 0);
-                        setState(new WaitWalkStart(new WaitFeed()));
+                        setState(new WaitWalk(new WaitFeed()));
                     }
-
-                }
-                else {
+                } else {
                     doneCheck = 0;
-                    lastPC = context().gui().map.player().rc;
+                    lastPC.x = curPos.x;
+                    lastPC.y = curPos.y;
                 }
             }
         }
     }
 
-    private class WaitWalkStart extends State {
+    private class WaitWalk extends State {
         private State next;
-        private Coord start;
+        private Coord curPos;
+        private Coord lastPos;
         private int fails;
-        public WaitWalkStart(State next) {
+        public WaitWalk(State next) {
             this.next=next;
-            start = new Coord(context().gui().map.player().rc);
-
+            curPos = context().gui().map.player().rc;
+            lastPos = new Coord(context().gui().map.player().rc);
         }
         private double t;
         public void tick(double dt) {
             t += dt;
             totalTasktime += dt;
             if (t > 1) {
-                if (context().gui().map.player().rc.x == start.x && context().gui().map.player().rc.y == start.y) {
-                    fails++;
-                    context().gui().map.wdgmsg("click", Coord.z, startCoord, 1, 0, 0, 0, startCoord, 0, 0);
-                }
-                if (fails >3) {
-                    stop("Cant reach start position");
-                }
-
                 t = 0;
-                if (context().gui().map.player().rc.x == startCoord.x &&  context().gui().map.player().rc.y == startCoord.y) {
+                curPos = context().gui().map.player().rc;
+                // check if at starting position
+                if (curPos.dist(startCoord)<=.1) {
                     if (next instanceof WaitFeed)
                         context().gui().feedTrough = true;
                     setState(next);
                 }
+                // check if still walking
+                if (curPos.dist(lastPos)==0) {
+                    fails++;
+                    dropHand();
+                    context().gui().map.wdgmsg("click", Coord.z, startCoord, 1, 0, 0, 0, startCoord, 0, 0);
+                    if (fails > 3) {
+                        stop("Cant reach starting position");
+                    }
+                }
+                lastPos.x=curPos.x;
+                lastPos.y=curPos.y;
             }
         }
     }
@@ -189,12 +207,14 @@ public class HarvestTaskPlus extends FsmTask {
                 t=0;
                 for (Widget w = inv.child; w != null; w = w.next) {
                     if (w instanceof GItem )
-                        if (((GItem) w).resname().contains("carrot") ) {
+                        if (((GItem) w).resname().contains("carrot") || ((GItem) w).resname().contains("beet")) {
                             return;
                         }
                 }
+                dropHand();
                 context().gui().map.wdgmsg("click", Coord.z, startCoord, 1, 0, 0, 0, startCoord, 0, 0);
-                setState(new WaitWalkStart(new FindObject()));
+                lastItem = null;
+                setState(new WaitWalk(new FindObject()));
             }
         }
     }
@@ -203,7 +223,7 @@ public class HarvestTaskPlus extends FsmTask {
     private class Wait extends State {
         private final double timeout = 6;
         private double t;
-        private final int minThreshhold = 50;
+        private final int minThreshhold = 70;
         @Override
         public void tick(double dt) {
             t+=dt;
@@ -231,17 +251,6 @@ public class HarvestTaskPlus extends FsmTask {
         }
     }
 
-    private void dropitems() {
-        Inventory inv = context().playerInventory();
-        for (Widget w = inv.child; w != null; w = w.next) {
-            if (w instanceof GItem ) {
-                if (!(((GItem) w).resname().contains("keyring") || ((GItem) w).resname().contains("waterflask"))){
-                    w.wdgmsg("drop", Coord.z);
-                }
-            }
-        }
-    }
-
     private boolean getFreeslots() {
         boolean hasFeed = false;
         slots = 16;
@@ -257,13 +266,20 @@ public class HarvestTaskPlus extends FsmTask {
             for (Widget w = inv.child; w != null; w = w.next) {
                 if (w instanceof GItem) {
                     slots--;
-                    if (((GItem) w).resname().contains("carrot"))
+                    if (((GItem) w).resname().contains("carrot") || ((GItem) w).resname().contains("beet"))
                         hasFeed=true;
                 }
             }
         } catch (Exception e) {
         }
-        context().info("Slots: "+slots);
+        slots = slots - slots % 3;
         return hasFeed;
+    }
+
+    private void dropHand(){
+        GItem item = context().getItemAtHand();
+        if (item != null) {
+            item.wdgmsg("drop", startCoord, startCoord, 0);
+        }
     }
 }

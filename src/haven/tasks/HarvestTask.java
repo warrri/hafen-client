@@ -33,14 +33,18 @@ public class HarvestTask extends FsmTask
         @Override
         public void tick(double dt) {
             // find plant
-            Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
-            if (object != null) {
-                context().gui().map.wdgmsg("click", object.sc, object.rc, 3, 1, 0, (int)object.id, object.rc, 0, 42);
-                setState(new WaitCursor());
-            } else {
+            if(!startHarvest())
                 stop("Nothing to harvest");
-            }
         }
+    }
+    private boolean startHarvest() {
+        Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
+        if (object != null) {
+            context().gui().map.wdgmsg("click", object.sc, object.rc, 3, 1, 0, (int)object.id, object.rc, 0, 42);
+            setState(new WaitCursor());
+            return true;
+        }
+        return false;
     }
 
     private class WaitCursor extends State {
@@ -58,9 +62,8 @@ public class HarvestTask extends FsmTask
     }
 
     private class CheckStam extends State {
-        private final int threshHold=30;
+        private final int threshHold=40;
         private double t;
-        private final double timer = 3;
 
         @Override
         public void tick(double dt) {
@@ -82,20 +85,21 @@ public class HarvestTask extends FsmTask
                     dropitems();
                     failAmount++;
                     failTime=0;
-                    setState(new FindObject());
+                    // check if done
+                    if (!startHarvest()) {
+                        GItem q =context().getItemAtHand();
+                        if (q!=null)
+                            q.wdgmsg("drop", Coord.z);
+                        stop("Finished harvesting in " + (int) (totalTasktime / 60) + "m " + (int) (totalTasktime % 60) + "s");
+                    }
                 }
             } else
                 failTime = 0;
-            // drop inventory every 20s
-            if (t%20>19) {
+            // drop inventory every 10s
+            if (t>10) {
+                t=0;
                 dropitems();
-                // check if done
-                Gob object = context().findObjectInBoundingBox(start,end, PLANTS);
-                if (object == null) {
-                    stop("Finished harvesting in "+(int)(totalTasktime/60)+"m "+(int)(totalTasktime%60)+"s");
-                }
             }
-            // check if done
         }
     }
     private void dropitems() {
@@ -104,7 +108,7 @@ public class HarvestTask extends FsmTask
             if (w instanceof GItem ) {
                 if (!(((GItem) w).resname().contains("keyring") || ((GItem) w).resname().contains("waterflask") || ((GItem) w).resname().contains("travel"))){
                     GItem item = (GItem) w;
-                    item.wdgmsg("drop", Coord.z);
+                    item.wdgmsg("drop", Coord.z, Coord.z, 0);
                 }
             }
         }
@@ -113,7 +117,7 @@ public class HarvestTask extends FsmTask
     private class Wait extends State {
         private final double timeout = 6;
         private double t;
-        private final int minThreshhold = 50;
+        private final int minThreshhold = 70;
         @Override
         public void tick(double dt) {
             t+=dt;
